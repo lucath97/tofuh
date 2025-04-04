@@ -1,0 +1,18 @@
+services:
+    app:
+        build: .
+        depends_on:
+            database:
+                condition: service_started
+            broker:
+                condition: service_started
+
+    database:
+        image: redis:7.4-alpine3.21
+
+    broker:
+        image: eclipse-mosquitto:2.0
+        ports:
+            - "1883:1883"
+        volumes:
+            - ./mosquitto.conf:/mosquitto/config/mosquitto.conf

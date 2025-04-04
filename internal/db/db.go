@@ -17,7 +17,6 @@ var (
 	ErrPosOutOfRange = errors.New("position out of range 0-63")
 	ErrInvalidState  = errors.New("state is not an 8 byte bitmap")
 	ErrNoStateInDb   = errors.New("no state in db")
-	ErrDbMalfunction = errors.New("db malfunction")
 )
 
 var ZeroState [8]byte
@@ -37,7 +36,7 @@ func SetBit(db *redis.Client, ctx context.Context, stateKey string, pos uint8, s
 		return ErrNoStateInDb
 	}
 	if setErr != nil {
-		return ErrDbMalfunction
+		return setErr
 	}
 
 	return nil
@@ -51,7 +50,7 @@ func GetState(db *redis.Client, ctx context.Context, stateKey string) ([8]byte, 
 		return bitmap, ErrNoStateInDb
 	}
 	if getErr != nil {
-		return bitmap, ErrDbMalfunction
+		return bitmap, getErr
 	}
 
 	if len(s) != 8 {
@@ -65,7 +64,7 @@ func GetState(db *redis.Client, ctx context.Context, stateKey string) ([8]byte, 
 func SetState(db *redis.Client, ctx context.Context, stateKey string, state [8]byte) error {
 	err := db.Set(ctx, stateKey, state, stateExpiration).Err()
 	if err != nil {
-		return ErrDbMalfunction
+		return err
 	}
 
 	return nil
