@@ -7,21 +7,25 @@ import (
 )
 
 const (
-	dbAddressKey      = "DB_ADDRESS"
-	dbPasswordKey     = "DB_PASSWORD"
-	dbStateKeyKey     = "DB_STATE_KEY"
-	msgAddressKey     = "MSG_ADDRESS"
-	msgClientIDKey    = "MSG_CLIENT_ID"
-	msgConnTimeoutKey = "MSG_CONN_TIMEOUT"
-	msgQOSKey         = "MSG_QOS"
-	msgRetainStateKey = "MSG_RETAIN_STATE"
-	msgStateTopicKey  = "MSG_STATE_TOPIC"
-	msgSetBitTopicKey = "MSG_SET_BIT_TOPIC"
+	dbAddressKey       = "DB_ADDRESS"
+	dbPasswordKey      = "DB_PASSWORD"
+	dbStateKeyKey      = "DB_STATE_KEY"
+	dbTimeoutKey       = "DB_TIMEOUT"
+	msgAddressKey      = "MSG_ADDRESS"
+	msgClientIDKey     = "MSG_CLIENT_ID"
+	msgConnTimeoutKey  = "MSG_CONN_TIMEOUT"
+	msgQOSKey          = "MSG_QOS"
+	msgRetainStateKey  = "MSG_RETAIN_STATE"
+	msgStateTopicKey   = "MSG_STATE_TOPIC"
+	msgSetBitTopicKey  = "MSG_SET_BIT_TOPIC"
+	httpAddressKey     = "HTTP_ADDRESS"
+	httpClientsFileKey = "HTTP_CLIENTS_FILE"
 )
 
 const (
 	dbAddressFallback      = "database:6379"
 	dbStateKeyFallback     = "state"
+	dbTimeoutFallback      = 1000 * time.Millisecond
 	msgAddressFallback     = "tcp://broker:1883"
 	msgClientIDFallback    = "tofuh-app"
 	msgConnTimeoutFallback = 3000 * time.Millisecond
@@ -29,12 +33,15 @@ const (
 	msgRetainStateFallback = true
 	msgStateTopicFallback  = "tofuh/state"
 	msgSetBitTopicFallback = "tofuh/setbit"
+	httpAddressFallback    = ":80"
+	httpClientFileFallback = "/secrets/httpclients.json"
 )
 
 type Config struct {
 	DbAddress         string
 	DbPassword        string
 	DbStateKey        string
+	DbTimeout         time.Duration
 	MsgAddress        string
 	MsgClientID       string
 	MsgConnTimeout    time.Duration
@@ -42,6 +49,8 @@ type Config struct {
 	MsgRetainState    bool
 	MsgStateTopicKey  string
 	MsgSetBitTopicKey string
+	HTTPAddress       string
+	HTTPClientsFile   string
 }
 
 func LoadConfig() Config {
@@ -49,6 +58,7 @@ func LoadConfig() Config {
 		DbAddress:         getEnvStr(dbAddressKey, dbAddressFallback),
 		DbPassword:        getEnvStr(dbPasswordKey, ""),
 		DbStateKey:        getEnvStr(dbStateKeyKey, dbStateKeyFallback),
+		DbTimeout:         getEnvDuration(dbTimeoutKey, dbTimeoutFallback),
 		MsgAddress:        getEnvStr(msgAddressKey, msgAddressFallback),
 		MsgClientID:       getEnvStr(msgClientIDKey, msgClientIDFallback),
 		MsgConnTimeout:    getEnvDuration(msgConnTimeoutKey, msgConnTimeoutFallback),
@@ -56,6 +66,8 @@ func LoadConfig() Config {
 		MsgRetainState:    getEnvBool(msgRetainStateKey, msgRetainStateFallback),
 		MsgStateTopicKey:  getEnvStr(msgStateTopicKey, msgStateTopicFallback),
 		MsgSetBitTopicKey: getEnvStr(msgSetBitTopicKey, msgSetBitTopicFallback),
+		HTTPAddress:       getEnvStr(httpAddressKey, httpAddressFallback),
+		HTTPClientsFile:   getEnvStr(httpClientsFileKey, httpClientFileFallback),
 	}
 }
 

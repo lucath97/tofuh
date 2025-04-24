@@ -62,10 +62,23 @@ func GetState(db *redis.Client, ctx context.Context, stateKey string) ([8]byte, 
 }
 
 func SetState(db *redis.Client, ctx context.Context, stateKey string, state [8]byte) error {
-	err := db.Set(ctx, stateKey, state, stateExpiration).Err()
+	err := db.Set(ctx, stateKey, state[:], stateExpiration).Err()
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+func InitState(db *redis.Client, ctx context.Context, stateKey string) error {
+	_, getErr := GetState(db, ctx, stateKey)
+	if errors.Is(getErr, ErrNoStateInDb) {
+		setErr := SetState(db, ctx, stateKey, [8]byte{})
+		if setErr != nil {
+			return setErr
+		}
+	} else if getErr != nil {
+		return getErr
+	}
 	return nil
 }

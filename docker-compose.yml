@@ -1,15 +1,37 @@
 services:
-    app:
-        build: .
+    msgcontrol:
+        build:
+            context: .
+            dockerfile: Dockerfile.msgcontrol
         depends_on:
             database:
                 condition: service_started
             broker:
                 condition: service_started
 
-    database:
-        image: redis:7.4-alpine3.21
+    httpcontrol:
+        ports:
+            - "80:80"
+        build:
+            context: .
+            dockerfile: Dockerfile.httpcontrol
+        environment:
+            HTTP_CLIENTS_FILE: /secrets/httpclients.json
+            GIN_MODE: release
+        volumes:
+            - ${HOST_HTTP_CLIENTS_FILE}:/secrets/httpclients.json
+        depends_on:
+            database:
+                condition: service_started
 
+    database:  
+        image: redis
+        command: redis-server /usr/local/etc/redis/redis.conf
+        volumes:
+            - ./redis.conf:/usr/local/etc/redis/redis.conf
+        ports:
+            - 6379:6379
+        
     broker:
         image: eclipse-mosquitto:2.0
         ports:
