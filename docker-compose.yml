@@ -2,7 +2,7 @@ services:
     msgcontrol:
         build:
             context: .
-            dockerfile: Dockerfile.msgcontrol
+            target: msgcontrol
         depends_on:
             database:
                 condition: service_started
@@ -14,7 +14,7 @@ services:
             - "80:80"
         build:
             context: .
-            dockerfile: Dockerfile.httpcontrol
+            target: httpcontrol
         environment:
             HTTP_CLIENTS_FILE: /secrets/httpclients.json
             GIN_MODE: release
